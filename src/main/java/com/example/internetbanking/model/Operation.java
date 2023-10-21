@@ -6,23 +6,30 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "operations")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Operation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long operationId;
 
-    private BigDecimal balance;
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+
+    @Enumerated(EnumType.STRING)
+    private OperationType operationType;
+
+    private BigDecimal amount;
 
     @Column(updatable = false)
     @CreationTimestamp
@@ -30,8 +37,4 @@ public class User {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<Operation> operations;
-
 }

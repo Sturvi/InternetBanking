@@ -2,6 +2,7 @@ package com.example.internetbanking.model.mapper;
 
 import com.example.internetbanking.model.User;
 import com.example.internetbanking.model.dto.UserDTO;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -13,4 +14,5 @@ public interface UserMapper {
 
     @Mapping (target = "id", source = "id")
     UserDTO toUserDTO (User user);
+
 }

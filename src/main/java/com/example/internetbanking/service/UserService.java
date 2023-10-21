@@ -1,12 +1,10 @@
 package com.example.internetbanking.service;
 
-import com.example.internetbanking.exceptions.InsufficientFundsException;
 import com.example.internetbanking.exceptions.UserNotFoundException;
 import com.example.internetbanking.model.User;
 import com.example.internetbanking.model.dto.UserDTO;
 import com.example.internetbanking.model.mapper.UserMapper;
 import com.example.internetbanking.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +16,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    private User findUserById(Long id) {
-        validateId(id);
-        return userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    public void save (User user) {
+        userRepository.save(user);
     }
 
     private void validateId(Long id) {
@@ -30,10 +26,10 @@ public class UserService {
         }
     }
 
-    private void validateAmount(BigDecimal amount) {
-        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Amount must be positive");
-        }
+    public User findUserById(Long id) {
+        validateId(id);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
 
     public BigDecimal getBalance(Long id) {
@@ -41,32 +37,9 @@ public class UserService {
         return user.getBalance();
     }
 
-    public UserDTO getUserById(Long id) {
+    public UserDTO getUserDtoById(Long id) {
         User user = findUserById(id);
         return userMapper.toUserDTO(user);
     }
 
-    @Transactional
-    public UserDTO putMoney(Long id, BigDecimal amount) {
-        validateId(id);
-        validateAmount(amount);
-        User user = findUserById(id);
-        user.setBalance(user.getBalance().add(amount));
-        userRepository.save(user);
-        return userMapper.toUserDTO(user);
-    }
-
-    @Transactional
-    public UserDTO takeMoney(Long id, BigDecimal amount) {
-        validateId(id);
-        validateAmount(amount);
-        User user = findUserById(id);
-        BigDecimal newBalance = user.getBalance().subtract(amount);
-        if (newBalance.compareTo(BigDecimal.ZERO) < 0) {
-            throw new InsufficientFundsException("Insufficient funds");
-        }
-        user.setBalance(newBalance);
-        userRepository.save(user);
-        return userMapper.toUserDTO(user);
-    }
 }
